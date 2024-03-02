@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32516.85
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookService", "BookService\BookService.csproj", "{50C708FE-E295-4D9E-8D2C-F39CBF53CDD9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Protos", "Protos", "{4F771B07-E345-42DF-AB45-E0B6B1F4128C}"
+	ProjectSection(SolutionItems) = preProject
+		greet.proto = greet.proto
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{50C708FE-E295-4D9E-8D2C-F39CBF53CDD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50C708FE-E295-4D9E-8D2C-F39CBF53CDD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50C708FE-E295-4D9E-8D2C-F39CBF53CDD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50C708FE-E295-4D9E-8D2C-F39CBF53CDD9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0B284739-8EC4-4675-AE33-BE9BE7759E63}
+	EndGlobalSection
+EndGlobal
