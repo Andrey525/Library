@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-	  <Protobuf Include="..\greet.proto" GrpcServices="Server" Link="Protos\greet.proto" />
+	  <Protobuf Include="..\book.proto" GrpcServices="BookService" Link="Protos\book.proto" />
 	  <PackageReference Include="Grpc.AspNetCore" Version="2.40.0" />
   </ItemGroup>
 
