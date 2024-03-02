@@ -1,2 +1,0 @@
-obj\Debug\net6.0/Film.cs \
-obj\Debug\net6.0/FilmGrpc.cs: ../film.proto
