@@ -1,0 +1,23 @@
+﻿@page "/books"
+@using BookService
+@inject BookServ.BookServClient Client
+
+<PageTitle>Books</PageTitle>
+
+<h1>Books</h1>
+
+<p role="status">Answer from service: @Price</p>
+
+<button class="btn btn-primary" @onclick="(() => GetServerAnswerAsync())">Click me</button>
+
+@code {
+    private int Price { get; set; }
+
+    private async Task GetServerAnswerAsync()
+    {
+	    Random random = new Random();
+	    
+	    var reply = await Client.GetBookPriceAsync(new GetBookPriceRequest() {BookName = "The Witcher. The Last Wish", AuthorName = "Andrzej Sapkowski", PublishYear = 1993});
+	    Price = reply.Price;
+    }
+}

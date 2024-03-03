@@ -2,20 +2,18 @@ syntax = "proto3";
 
 option csharp_namespace = "BookService";
 
-package greet;
+package book;
 
-// The greeting service definition.
-service Greeter {
-  // Sends a greeting
-  rpc SayHello (HelloRequest) returns (HelloReply);
+service BookServ {
+  rpc GetBookPrice (GetBookPriceRequest) returns (GetBookPriceReply);
 }
 
-// The request message containing the user's name.
-message HelloRequest {
-  string name = 1;
+message GetBookPriceRequest {
+  string book_name = 1;
+  string author_name = 2;
+  int32 publish_year = 3;
 }
 
-// The response message containing the greetings.
-message HelloReply {
-  string message = 1;
+message GetBookPriceReply {
+  int32 price = 1;
 }
