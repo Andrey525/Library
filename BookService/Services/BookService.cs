@@ -1,4 +1,5 @@
 using BookService.Data;
+using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Microsoft.AspNetCore.Components;
 
@@ -27,6 +28,17 @@ namespace BookService.Services
                     PublishYear = request.PublishYear,
                 })
             });
+        }
+
+        public override async Task GetBooks(Empty request, IServerStreamWriter<GetBookReply> responseStream,
+            ServerCallContext context)
+        {
+            Console.WriteLine("GetBooks");
+            foreach (var book in Library.AvailableBooks)
+            {
+                await responseStream.WriteAsync(new GetBookReply()
+                { BookName = book.Name, AuthorName = book.Author, PublishYear = book.PublishYear });
+            }
         }
     }
 }

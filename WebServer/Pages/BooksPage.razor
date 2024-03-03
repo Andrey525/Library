@@ -1,23 +1,100 @@
 ﻿@page "/books"
 @using BookService
 @inject BookServ.BookServClient Client
+@implements IDisposable
 
 <PageTitle>Books</PageTitle>
 
 <h1>Books</h1>
 
-<p role="status">Answer from service: @Price</p>
+@if (Price != 0)
+{
+	<p role="status">Price: @Price</p>
+}
+else
+{
+	<p role="status">This book is no longer available</p>
+}
 
-<button class="btn btn-primary" @onclick="(() => GetServerAnswerAsync())">Click me</button>
+<div class="table-responsive">
+	<table class="table table-striped">
+		<thead class="thead-light">
+		<tr>
+			<th>"Name"</th>
+			<th>"Author"</th>
+			<th>"Publish year"</th>
+			<th>"Action"</th>
+		</tr>
+		</thead>
+		<tbody>
+		@if (GetBookReplies != null)
+		{
+			@foreach (var book in GetBookReplies)
+			{
+				<tr>
+					<td>@book.BookName</td>
+					<td>@book.AuthorName</td>
+					<td>@book.PublishYear</td>
+					<td>
+						<button class="btn btn-primary" @onclick="(() => GetBookPriceAsync(book))">Request a price</button>
+					</td>
+				</tr>
+			}
+		}
+		</tbody>
+	</table>
+</div>
 
 @code {
+	private Timer? _timer;
     private int Price { get; set; }
 
-    private async Task GetServerAnswerAsync()
+    private List<GetBookReply>? GetBookReplies { get; set; }
+
+    protected override async Task OnInitializedAsync()
     {
-	    Random random = new Random();
-	    
-	    var reply = await Client.GetBookPriceAsync(new GetBookPriceRequest() {BookName = "The Witcher. The Last Wish", AuthorName = "Andrzej Sapkowski", PublishYear = 1993});
+	    await GetBooksAsync();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+	    if (firstRender)
+	    {
+		    _timer = new Timer((_) =>
+		    {
+			    InvokeAsync( async ()  =>
+			    {
+				    await GetBooksAsync();
+				    StateHasChanged();
+			    });
+		    }, null, 0, 4000);
+	    }
+    }
+
+    private async Task GetBookPriceAsync(GetBookReply book)
+    {
+	    var reply = await Client.GetBookPriceAsync(new GetBookPriceRequest()
+	    {
+		    BookName = book.BookName,
+		    AuthorName = book.AuthorName,
+		    PublishYear = book.PublishYear
+	    });
 	    Price = reply.Price;
+    }
+
+    private async Task GetBooksAsync()
+    {
+	    using var call = Client.GetBooks(new Empty());
+
+	    GetBookReplies = new List<GetBookReply>();
+	    await foreach (var message in call.ResponseStream.ReadAllAsync())
+	    {
+		    GetBookReplies.Add(message);
+	    }
+    }
+
+    public void Dispose()
+    {
+	    _timer?.Dispose();
     }
 }
