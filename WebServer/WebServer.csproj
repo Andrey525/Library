@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -19,8 +19,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Protobuf Include="..\film.proto" GrpcServices="FilmServiceClient" Link="Protos\film.proto" />
-		<Protobuf Include="..\book.proto" GrpcServices="BookServiceClient" Link="Protos\book.proto" />
+		<Protobuf Include="..\Protos\film.proto" GrpcServices="FilmServiceClient" Link="Protos\film.proto" />
+		<Protobuf Include="..\Protos\book.proto" GrpcServices="BookServiceClient" Link="Protos\book.proto" />
 	</ItemGroup>
 
 	<ProjectExtensions><VisualStudio><UserProperties properties_4launchsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
