@@ -1,0 +1,33 @@
+version: '3.4'
+
+services:
+  webserver:
+    image: ${DOCKER_REGISTRY-}webserver
+    build:
+      context: .
+      dockerfile: WebServer/Dockerfile
+    depends_on:
+      - filmservice
+      - bookservice
+    ports:
+      - "5175:5175"
+      - "7175:7175"
+
+  filmservice:
+    image: ${DOCKER_REGISTRY-}filmservice
+    build:
+      context: .
+      dockerfile: FilmService/Dockerfile
+    ports:
+      - "5136:5136"
+      - "7136:7136"
+
+  bookservice:
+    image: ${DOCKER_REGISTRY-}bookservice
+    build:
+      context: .
+      dockerfile: BookService/Dockerfile
+    ports:
+      - "5291:5291"
+      - "7291:7291"
+
