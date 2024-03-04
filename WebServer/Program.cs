@@ -4,10 +4,10 @@ using Grpc.Net.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
-using GrpcChannel channel = GrpcChannel.ForAddress("http://localhost:5291");
+using GrpcChannel channel = GrpcChannel.ForAddress("http://host.docker.internal:5291");
 BookServ.BookServClient client = new BookServ.BookServClient(channel);
 
-using GrpcChannel channel2 = GrpcChannel.ForAddress("http://localhost:5136");
+using GrpcChannel channel2 = GrpcChannel.ForAddress("http://host.docker.internal:5136");
 FilmServ.FilmServClient client2 = new FilmServ.FilmServClient(channel2);
 
 // Add services to the container.
