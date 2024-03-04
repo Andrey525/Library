@@ -67,7 +67,7 @@ else
 				    await GetBooksAsync();
 				    StateHasChanged();
 			    });
-		    }, null, 0, 4000);
+		    }, null, 4000, 4000);
 	    }
     }
 
@@ -82,15 +82,19 @@ else
 	    Price = reply.Price;
     }
 
+	static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
+
     private async Task GetBooksAsync()
     {
+		Console.WriteLine("GetBooksAsync");
 	    using var call = Client.GetBooks(new Empty());
-
+		await semaphoreSlim.WaitAsync();
 	    GetBookReplies = new List<GetBookReply>();
 	    await foreach (var message in call.ResponseStream.ReadAllAsync())
 	    {
 		    GetBookReplies.Add(message);
 	    }
+		semaphoreSlim.Release();
     }
 
     public void Dispose()

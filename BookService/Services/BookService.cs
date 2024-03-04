@@ -33,11 +33,14 @@ namespace BookService.Services
         public override async Task GetBooks(Empty request, IServerStreamWriter<GetBookReply> responseStream,
             ServerCallContext context)
         {
-            Console.WriteLine("GetBooks");
+            Console.WriteLine($"GetBooks count == {Library.AvailableBooks.Count}");
+
+            int cnt = 0;
             foreach (var book in Library.AvailableBooks)
             {
                 await responseStream.WriteAsync(new GetBookReply()
                 { BookName = book.Name, AuthorName = book.Author, PublishYear = book.PublishYear });
+                Console.WriteLine($"Added book {++cnt}");
             }
         }
     }
