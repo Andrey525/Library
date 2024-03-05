@@ -15,10 +15,12 @@ namespace BookService.Services
         {
             _logger = logger;
             Library = library;
+            _logger.LogInformation($"BookService: new creation");
         }
 
         public override Task<GetBookPriceReply> GetBookPrice(GetBookPriceRequest request, ServerCallContext context)
         {
+            _logger.LogInformation($"GetBookPrice:");
             return Task.FromResult(new GetBookPriceReply
             {
                 Price = Library.GetBookPrice(new Book
@@ -33,15 +35,15 @@ namespace BookService.Services
         public override async Task GetBooks(Empty request, IServerStreamWriter<GetBookReply> responseStream,
             ServerCallContext context)
         {
-            Console.WriteLine($"GetBooks count == {Library.AvailableBooks.Count}");
+            await Library.SemaphoreSlim.WaitAsync();
+            _logger.LogInformation($"{nameof(GetBooks)} books count == {Library.AvailableBooks.Count}");
 
-            int cnt = 0;
             foreach (var book in Library.AvailableBooks)
             {
                 await responseStream.WriteAsync(new GetBookReply()
                 { BookName = book.Name, AuthorName = book.Author, PublishYear = book.PublishYear });
-                Console.WriteLine($"Added book {++cnt}");
             }
+            Library.SemaphoreSlim.Release();
         }
     }
 }

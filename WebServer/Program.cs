@@ -1,20 +1,22 @@
 using BookService;
 using FilmService;
 using Grpc.Net.Client;
+using WebServer.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-using GrpcChannel channel = GrpcChannel.ForAddress("http://host.docker.internal:5291");
-BookServ.BookServClient client = new BookServ.BookServClient(channel);
+using var channel = GrpcChannel.ForAddress("http://host.docker.internal:5291");
+var bookClient = new BookServ.BookServClient(channel);
+var bookListReceiver = new BookServiceInteractor(bookClient);
 
-using GrpcChannel channel2 = GrpcChannel.ForAddress("http://host.docker.internal:5136");
-FilmServ.FilmServClient client2 = new FilmServ.FilmServClient(channel2);
+using var channel2 = GrpcChannel.ForAddress("http://host.docker.internal:5136");
+var filmClient = new FilmServ.FilmServClient(channel2);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton(client);
-builder.Services.AddSingleton(client2);
+builder.Services.AddSingleton(bookListReceiver);
+builder.Services.AddSingleton(filmClient);
 
 var app = builder.Build();
 

@@ -6,19 +6,45 @@
 
 <h1>Films</h1>
 
-<p role="status">Answer from service: @Price</p>
+<div class="table-responsive">
+	<table class="table table-striped">
+		<thead class="thead-light">
+		<tr>
+			<th>"Resolution"</th>
+			<th>"Price"</th>
+		</tr>
+		</thead>
+		<tbody>
+		@if (Price != null)
+		{
+			@foreach (var elem in Price)
+			{
+				<tr>
+					<td>@elem.Key</td>
+					<td>@elem.Value</td>
+				</tr>
+			}
+		}
+		</tbody>
+	</table>
+</div>
 
 <button class="btn btn-primary" @onclick="(() => GetServerAnswerAsync())">Click me</button>
 
 @code {
-	private int Price { get; set; }
+	private Dictionary<string, int>? Price { get; set; }
 
 	private async Task GetServerAnswerAsync()
 	{
-		DateTime dt = DateTime.SpecifyKind(new DateTime(2013, 3, 15), DateTimeKind.Utc);
+		DateTime dt = DateTime.SpecifyKind(new DateTime(1999, 5, 7), DateTimeKind.Utc);
 		Random random = new Random();
-		
-		var reply = await Client.GetFilmPriceAsync(new GetFilmPriceRequest() {FilmName = "The Witcher. The Lady of the Lake", ProducerName = "Netflix", ReleaseDate = Timestamp.FromDateTime(dt)});
-		Price = reply.Price;
+
+		var reply = await Client.GetFilmPriceAsync(new GetFilmPriceRequest() {FilmName = "The Witcher. The Lady of the Lake", StudioName = "Netflix", ReleaseDate = Timestamp.FromDateTime(dt)});
+
+		Price = new Dictionary<string, int>();
+		foreach(var obj in reply.Price)
+		{
+			Price.Add(obj.Key, obj.Value);
+		}
 	}
 }

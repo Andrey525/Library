@@ -1,14 +1,19 @@
 ﻿namespace BookService.Data
 {
-    public record BookLibrary
+    public class BookLibrary
     {
+        private readonly ILogger<BookLibrary> _logger;
         public List<Book> AvailableBooks { get; }
         private List<Book>? _mockBooks;
+        public SemaphoreSlim SemaphoreSlim { get; init; }
 
-        public BookLibrary()
+        public BookLibrary(ILogger<BookLibrary> logger)
         {
-            Console.WriteLine("BookLibrary created");
+            _logger = logger;
+            _logger.LogInformation("BookLibrary: new creation");
+
             Random random = new Random();
+            SemaphoreSlim = new SemaphoreSlim(1, 1);
             InitMockBooks();
             AvailableBooks = new List<Book>();
             if (_mockBooks?.Count > 0)
@@ -18,16 +23,21 @@
                     AvailableBooks.Add(_mockBooks[random.Next(0, _mockBooks.Count)]);
                 }
             }
-            var timerAdd = new Timer((_) => { AddBook(); }, null, 0, 5000);
-            var timerDelete = new Timer((_) => { DeleteBook(); }, null, 0, 6000);
+            var timerAdd = new Timer((_) => { AddBook(); }, null, 0, 2000);
+            var timerDelete = new Timer((_) => { DeleteBook(); }, null, 0, 3000);
         }
 
         public int GetBookPrice(Book neededBook)
         {
+            SemaphoreSlim.Wait();
             Book? foundedBook = (from book in AvailableBooks
                                  where (book.Name == neededBook.Name && book.Author == neededBook.Author &&
                                         book.PublishYear == neededBook.PublishYear)
                                  select book).FirstOrDefault();
+            SemaphoreSlim.Release();
+
+            _logger.LogInformation($"GetBookPrice: {foundedBook?.Price ?? 0}");
+
             return foundedBook?.Price ?? 0;
         }
 
@@ -35,23 +45,40 @@
         {
             if (_mockBooks == null || _mockBooks.Count <= 0)
             {
+                _logger.LogError($"AddBook: no mockBooks");
                 return;
             }
+
+            SemaphoreSlim.Wait();
             Random random = new Random();
-            AvailableBooks.Add(_mockBooks[random.Next(0, _mockBooks.Count)]);
+            int i = random.Next(0, _mockBooks.Count);
+
+            _logger.LogInformation($"AddBook: addition of {_mockBooks[i]}");
+            AvailableBooks.Add(_mockBooks[i]);
+            SemaphoreSlim.Release();
         }
 
         private void DeleteBook()
         {
+            SemaphoreSlim.Wait();
             if (AvailableBooks.Count == 0)
+            {
+                _logger.LogWarning($"DeleteBook: AvailableBooks is empty");
                 return;
+            }
 
             Random random = new Random();
-            AvailableBooks.RemoveAt(random.Next(0, AvailableBooks.Count));
+            int i = random.Next(0, AvailableBooks.Count);
+
+            _logger.LogInformation($"DeleteBook: deletion of {AvailableBooks[i]}");
+            AvailableBooks.RemoveAt(i);
+            SemaphoreSlim.Release();
         }
 
         private void InitMockBooks()
         {
+            _logger.LogInformation("InitMockBooks: new mockBooks");
+
             _mockBooks = new List<Book>
             {
                 new Book

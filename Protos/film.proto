@@ -12,10 +12,10 @@ service FilmServ {
 
 message GetFilmPriceRequest {
   string film_name = 1;
-  string producer_name = 2;
+  string studio_name = 2;
   google.protobuf.Timestamp release_date = 3;
 }
 
 message GetFilmPriceReply {
-  int32 price = 1;
+  map<string, int32> price = 1;
 }

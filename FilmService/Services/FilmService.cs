@@ -18,15 +18,19 @@ namespace FilmService.Services
 
         public override Task<GetFilmPriceReply> GetFilmPrice(GetFilmPriceRequest request, ServerCallContext context)
         {
-            return Task.FromResult(new GetFilmPriceReply()
+            var neededFilm = new Film()
             {
-                Price = Library.GetFilmPrice(new Film()
-                {
-                    Name = request.FilmName,
-                    Producer = request.ProducerName,
-                    ReleaseDate = DateOnly.FromDateTime(request.ReleaseDate.ToDateTime())
-                })
-            });
+                Name = request.FilmName,
+                Studio = request.StudioName,
+                ReleaseDate = DateOnly.FromDateTime(request.ReleaseDate.ToDateTime())
+            };
+
+            var priceMap = Library.GetFilmPrice(neededFilm);
+
+            var getFilmPriceReply = new GetFilmPriceReply();
+            getFilmPriceReply.Price.Add(priceMap);
+
+            return Task.FromResult(getFilmPriceReply);
         }
     }
 }

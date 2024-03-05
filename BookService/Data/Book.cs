@@ -5,6 +5,6 @@
         public string Name { get; init; }
         public string Author { get; init; }
         public int PublishYear { get; init; }
-        public int Price { get; set; }
+        public int Price { get; init; }
     }
 }

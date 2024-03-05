@@ -1,6 +1,7 @@
 ﻿@page "/books"
 @using BookService
-@inject BookServ.BookServClient Client
+@using WebServer.Data
+@inject BookServiceInteractor BookServiceInteractor
 @implements IDisposable
 
 <PageTitle>Books</PageTitle>
@@ -9,11 +10,11 @@
 
 @if (Price != 0)
 {
-	<p role="status">Price: @Price</p>
+	<h3 role="status">Price: @Price</h3>
 }
 else
 {
-	<p role="status">This book is no longer available</p>
+	<h3 role="status">This book is no longer available</h3>
 }
 
 <div class="table-responsive">
@@ -36,7 +37,7 @@ else
 					<td>@book.AuthorName</td>
 					<td>@book.PublishYear</td>
 					<td>
-						<button class="btn btn-primary" @onclick="(() => GetBookPriceAsync(book))">Request a price</button>
+						<button class="btn btn-primary" @onclick="(async () => Price = await BookServiceInteractor.GetBookPriceAsync(book))">Request a price</button>
 					</td>
 				</tr>
 			}
@@ -46,58 +47,42 @@ else
 </div>
 
 @code {
+	private int Price { get; set; }
 	private Timer? _timer;
-    private int Price { get; set; }
-
-    private List<GetBookReply>? GetBookReplies { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-	    await GetBooksAsync();
-    }
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-	    if (firstRender)
-	    {
-		    _timer = new Timer((_) =>
-		    {
-			    InvokeAsync( async ()  =>
-			    {
-				    await GetBooksAsync();
-				    StateHasChanged();
-			    });
-		    }, null, 4000, 4000);
-	    }
-    }
-
-    private async Task GetBookPriceAsync(GetBookReply book)
-    {
-	    var reply = await Client.GetBookPriceAsync(new GetBookPriceRequest()
-	    {
-		    BookName = book.BookName,
-		    AuthorName = book.AuthorName,
-		    PublishYear = book.PublishYear
-	    });
-	    Price = reply.Price;
-    }
-
+	private static List<GetBookReply>? GetBookReplies { get; set; }
 	static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
 
-    private async Task GetBooksAsync()
-    {
-		Console.WriteLine("GetBooksAsync");
-	    using var call = Client.GetBooks(new Empty());
-		await semaphoreSlim.WaitAsync();
-	    GetBookReplies = new List<GetBookReply>();
-	    await foreach (var message in call.ResponseStream.ReadAllAsync())
-	    {
-		    GetBookReplies.Add(message);
-	    }
-		semaphoreSlim.Release();
-    }
+	protected override void OnAfterRender(bool firstRender)
+	{
+		if (firstRender)
+		{
+			_timer = new Timer((_) =>
+			{
+				InvokeAsync( async ()  =>
+				{
+					StateHasChanged();
+				});
+			}, null, 0, 1000);
+		}
+		else
+		{
+			InvokeAsync( async ()  =>
+			{
+				if (semaphoreSlim.CurrentCount == 0)
+				{
+					Console.WriteLine("semaphoreSlim.CurrentCount == 0");
+					return;
+				}
 
-    public void Dispose()
+				await semaphoreSlim.WaitAsync();
+				GetBookReplies = await BookServiceInteractor.GetBooksAsync();
+				await Task.Delay(1000);
+				semaphoreSlim.Release();
+			});
+		}
+	}
+
+	public void Dispose()
     {
 	    _timer?.Dispose();
     }
