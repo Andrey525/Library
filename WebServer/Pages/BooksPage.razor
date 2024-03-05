@@ -54,6 +54,21 @@ else
 
 	protected override void OnAfterRender(bool firstRender)
 	{
+		InvokeAsync( async ()  =>
+		{
+			if (semaphoreSlim.CurrentCount == 0)
+			{
+				Console.WriteLine("semaphoreSlim.CurrentCount == 0");
+				return;
+			}
+
+			await semaphoreSlim.WaitAsync();
+			GetBookReplies = await BookServiceInteractor.GetBooksAsync();
+			StateHasChanged();
+			await Task.Delay(1000);
+			semaphoreSlim.Release();
+		});
+
 		if (firstRender)
 		{
 			_timer = new Timer((_) =>
@@ -63,22 +78,6 @@ else
 					StateHasChanged();
 				});
 			}, null, 0, 1000);
-		}
-		else
-		{
-			InvokeAsync( async ()  =>
-			{
-				if (semaphoreSlim.CurrentCount == 0)
-				{
-					Console.WriteLine("semaphoreSlim.CurrentCount == 0");
-					return;
-				}
-
-				await semaphoreSlim.WaitAsync();
-				GetBookReplies = await BookServiceInteractor.GetBooksAsync();
-				await Task.Delay(1000);
-				semaphoreSlim.Release();
-			});
 		}
 	}
 
